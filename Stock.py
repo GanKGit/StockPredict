@@ -63,16 +63,7 @@ def generate_data(p_v, q_v, s_v):
     op5= [pq]* len(op1)
     yaxis = [a +b+c+d+e for a, b, c, d, e in zip(op1, op2, op3, op4, op5)]
 
-    print("XAXIS:")
-    print(xaxis)
-
-    print("YAXIS:")
-    print(yaxis)
-
     out = list(zip(xaxis, yaxis))
-
-    print("OUT::::::::")
-    print(out)
 
     return out
 
