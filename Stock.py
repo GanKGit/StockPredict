@@ -21,11 +21,16 @@ def create_plot(x_plot, y_plot):
     graphJSON = json.dumps(data, cls=plotly.utils.PlotlyJSONEncoder)
     return graphJSON
 
-def generate_data(p_v, q_v, s_v):
-    last = int(round(float(s_v[0])/10,0)*10 + 10)
+def generate_data(p_v, q_v, s_v, CorP):
 
-    first = int(last * 0.7)
-    increment = int((last - first)/18)
+    if CorP=='C':
+        last = int(round(float(s_v[0])/10,0)*10 + 10)
+        first = int(last * 0.7)
+        increment = int((last - first)/18)
+    else:
+        first = int(round(float(s_v[0])/10,0)*10 )
+        last = int(first * 1.3)
+        increment = int((last - first)/18)
 
     xaxis = list(range(first, last, increment))
 
@@ -33,7 +38,10 @@ def generate_data(p_v, q_v, s_v):
     for cols in range(0, len(p_v)):
         nl=[]
         for x in xaxis:
-            nl.append(0 if x >= s_v[cols] else (s_v[cols] - x)*q_v[cols])
+            if CorP=='C':
+                nl.append(0 if x >= s_v[cols] else (s_v[cols] - x) * q_v[cols])
+            else:
+                nl.append(0 if x <= s_v[cols] else (x - s_v[cols]) * q_v[cols])
         yaxis_cr.append(nl)
 
     p_q = [a * b for a, b in zip(p_v, q_v)]
@@ -74,24 +82,25 @@ def index(input_data, CorP):
     q_v = [float(i) for i in q_v]
     s_v = [float(i) for i in s_v]
 
-    xyaxis = generate_data(p_v, q_v, s_v)
+    xyaxis = generate_data(p_v, q_v, s_v,CorP)
     unzip_v = ([ a for a,b in xyaxis ], [ b for a,b in xyaxis ])
     line = create_plot(unzip_v[0],unzip_v[1])
 
-    p_vn = [x * 2 for x in p_v]
-    xyaxis = generate_data(p_vn, q_v, s_v)
-    unzip_v = ([ a for a,b in xyaxis ], [ b for a,b in xyaxis ])
-    line2 = create_plot(unzip_v[0],unzip_v[1])
+    # p_vn = [x * 2 for x in p_v]
+    # xyaxis = generate_data(p_vn, q_v, s_v)
+    # unzip_v = ([ a for a,b in xyaxis ], [ b for a,b in xyaxis ])
+    # line2 = create_plot(unzip_v[0],unzip_v[1])
+    #
+    # p_vn = [x * 3 for x in p_v]
+    # xyaxis = generate_data(p_vn, q_v, s_v)
+    # unzip_v = ([ a for a,b in xyaxis ], [ b for a,b in xyaxis ])
+    # line3 = create_plot(unzip_v[0],unzip_v[1])
 
-    p_vn = [x * 3 for x in p_v]
-    xyaxis = generate_data(p_vn, q_v, s_v)
-    unzip_v = ([ a for a,b in xyaxis ], [ b for a,b in xyaxis ])
-    line3 = create_plot(unzip_v[0],unzip_v[1])
+    charts = render_template('index.html', plot=line, title1="As-Is Premium",
+                             title2="2X Premium", title3="3X Premium")
 
-    charts=render_template('index.html', plot=line, plot2=line2, plot3=line3, title1="As-Is Premium", title2="2X Premium", title3="3X Premium")
-
+    #charts=render_template('index.html', plot=line, plot2=line2, plot3=line3, title1="As-Is Premium", title2="2X Premium", title3="3X Premium")
     return charts #this has changed
-
 
 if __name__ == '__main__':
     app.run()
