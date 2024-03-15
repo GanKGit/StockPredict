@@ -76,8 +76,6 @@ def index(input_data, CorP):
 
     xyaxis = generate_data(p_v, q_v, s_v)
     unzip_v = ([ a for a,b in xyaxis ], [ b for a,b in xyaxis ])
-    print("unzip_v :")
-    print(str(unzip_v))
     line = create_plot(unzip_v[0],unzip_v[1])
 
     p_vn = [x * 2 for x in p_v]
