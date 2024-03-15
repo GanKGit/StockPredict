@@ -29,49 +29,50 @@ def generate_data(p_v, q_v, s_v):
 
     xaxis = list(range(first, last, increment))
 
-    op1 = []
-    op2 = []
-    op3 = []
-    op4 = []
-
-    for x in xaxis:
-        if x >= s_v[0]:
-            op1.append(0)
-        else:
-            op1.append((s_v[0] - x)*q_v[0])
-
-        if x >= s_v[1]:
-            op2.append(0)
-        else:
-            op2.append((s_v[1] - x)*q_v[1])
-
-        if x >= s_v[2]:
-            op3.append(0)
-        else:
-            op3.append((s_v[2] - x)*q_v[2])
-
-        if x >= s_v[3]:
-            op4.append(0)
-        else:
-            op4.append((s_v[3] - x)*q_v[3])
-
+    yaxis_cr = []
+    for cols in range(0, len(p_v)):
+        nl=[]
+        for x in xaxis:
+            nl.append(0 if x >= s_v[cols] else (s_v[cols] - x)*q_v[cols])
+        yaxis_cr.append(nl)
 
     p_q = [a * b for a, b in zip(p_v, q_v)]
     pq = sum(p_q)
     pq=-pq
 
-    op5= [pq]* len(op1)
-    yaxis = [a +b+c+d+e for a, b, c, d, e in zip(op1, op2, op3, op4, op5)]
+    yaxis_cr.append([pq]* len(xaxis))
+
+    print("CR:")
+    print(yaxis_cr)
+
+    yaxis_tr = zip(*yaxis_cr)
+
+    print("TR:")
+    print(yaxis_tr)
+
+    yaxis = [sum(a) for a in yaxis_tr]
+
+    print("YAXIS:")
+    print(yaxis)
 
     out = list(zip(xaxis, yaxis))
 
     return out
 
-@app.route("/line/<p1>/<p2>/<p3>/<p4>/<q1>/<q2>/<q3>/<q4>/<s1>/<s2>/<s3>/<s4>")
-def index(p1, p2, p3, p4,q1,q2,q3,q4,s1,s2,s3,s4):
-    p_v = [float(p1), float(p2), float(p3), float(p4)]
-    q_v = [float(q1), float(q2), float(q3), float(q4)]
-    s_v = [float(s1), float(s2), float(s3), float(s4)]
+@app.route("/line/<input_data>/<CorP>")
+def index(input_data, CorP):
+    tokens = input_data.split(";")
+    total = len(tokens)
+    print(total)
+    div = int(total / 3)
+    print(div)
+    p_v = tokens[0:div]
+    q_v = tokens[div:div * 2]
+    s_v = tokens[div * 2:div * 3]
+
+    p_v = [float(i) for i in p_v]
+    q_v = [float(i) for i in q_v]
+    s_v = [float(i) for i in s_v]
 
     xyaxis = generate_data(p_v, q_v, s_v)
     unzip_v = ([ a for a,b in xyaxis ], [ b for a,b in xyaxis ])
@@ -79,20 +80,22 @@ def index(p1, p2, p3, p4,q1,q2,q3,q4,s1,s2,s3,s4):
     print(str(unzip_v))
     line = create_plot(unzip_v[0],unzip_v[1])
 
-    p_vn = [x * 1.5 for x in p_v]
+    p_vn = [x * 2 for x in p_v]
     xyaxis = generate_data(p_vn, q_v, s_v)
     unzip_v = ([ a for a,b in xyaxis ], [ b for a,b in xyaxis ])
     line2 = create_plot(unzip_v[0],unzip_v[1])
 
-    p_vn = [x * 2 for x in p_v]
+    p_vn = [x * 3 for x in p_v]
     xyaxis = generate_data(p_vn, q_v, s_v)
     unzip_v = ([ a for a,b in xyaxis ], [ b for a,b in xyaxis ])
     line3 = create_plot(unzip_v[0],unzip_v[1])
 
-    charts=render_template('index.html', plot=line, plot2=line2, plot3=line3)
+    charts=render_template('index.html', plot=line, plot2=line2, plot3=line3, title1="As-Is Premium", title2="2X Premium", title3="3X Premium")
 
     return charts #this has changed
 
 
 if __name__ == '__main__':
     app.run()
+
+
